@@ -1,0 +1,65 @@
+Metadata-Version: 2.1
+Name: nc-utils
+Version: 0.0.0
+Home-page: 
+Author: 
+Author-email: 
+
+# Sounder
+
+Sounder is a real-time pulsed radar application that uses software-defined radios (SDRs) to demonstrate ionospheric topside sounding.
+
+This application can be used to synthesize several different pulsed radar waveforms, including phase and frequency-modulated waveforms which are then transmitted via an SDR. The SDR will transmit in a frequency-stepped method to cycle through all available frequencies.
+
+The received samples are then recorded (via Digital RF) and/or analyzed using a pulsed doppler processing algorithm.
+
+## Installation
+Install the Python-wrapped C/C++ dependencies:
+
+* digital_rf: https://github.com/MITHaystack/digital_rf
+* pyfftw: https://github.com/pyFFTW/pyFFTW
+* uhd (tested on v3.15.LTS): https://github.com/EttusResearch/uhd
+
+Install the Python dependencies:
+```
+$ python3 -m pip install faster_fifo matplotlib numpy scipy
+```
+
+Install the package in editable mode:
+```
+$ python3 -m pip install -e .
+```
+
+Use sysctl to adjust the kernel network buffer sizes. This should be added to a script that occurs on reboot for the interface used to connect to the USRPs. That’s 50 million for rmem_max and 50 million for wmwem_max.
+
+```
+$ sudo sysctl -w net.core.rmem_max=50000000
+$ sudo sysctl -w net.core.wmem_max=50000000
+```
+
+Verify that the kernel network buffer sizes are set:
+```
+$ cat /proc/sys/net/core/rmem_max
+$ cat /proc/sys/net/core/wmem_max
+```
+
+
+## Running the Tests
+Run the unit tests using Pytest (note that the USRP unit test requires a USRP to be connected and turned on):
+```
+$ pytest
+```
+If Pytest was installed via apt then run the following command:
+```
+$ pytest-3
+```
+
+## Setup the Configuration File
+Some configuration files (*.ini files) are shipped with the program, located inside the `conf` folder. If you wish to create or edit a configuration file, see the Python file `sounder/config.py` for a list of each configurable option and an explanation of what each does.
+
+## Running the Program
+Run the program using the following command, replacing <> with the *.ini configuration file desired:
+```
+$ python3 sounder <path_to_configuration_file.ini>
+```
+
