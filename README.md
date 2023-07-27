@@ -10,12 +10,18 @@ $ python3 -m pip install -e .
 Usage (assumes valid netCDF file 'ncfname' exists)
 
 #1  Read the whole file, including the attributes  
+
+```
 file =  nc_utils.load_nc(ncfname)
 
+```
 #2  Read the variables from a file  
+```
 vars = nc_utils.ncread_vars(ncfname)  
+```
 
 #3  Write netCDF (note header-setting must be done via a function)  
+```
 def def_vars():  
     stdin = {'dims':['npts', 'npts'], 'type': 'float'}   
     return {  
@@ -32,6 +38,7 @@ dim_defs = {'npts': len(out_vars['testarr'])}
 var_defs = def_vars()  
 write_nc(out_fn, var_defs, out_vars, set_header, dim_defs, overwrite=True)  
 
+```
 
 
 
