@@ -1,20 +1,21 @@
 # 
-Wrapper for netCDF read/write utilities
-Author: Alex T. Chartier (Johns Hopkins University Applied Physics Laboratory)
-Install the package in editable mode:
+Wrapper for netCDF read/write utilities\n
+Author: Alex T. Chartier (Johns Hopkins University Applied Physics Laboratory)\n
+\n
+Install the package in editable mode (from one directory up):\n
 ```
 $ python3 -m pip install -e .
 ```
 
 Usage (assumes valid netCDF file 'ncfname' exists)
 
-#1  Read the whole file, including the attributes
+#1  Read the whole file, including the attributes\n
 file =  nc_utils.load_nc(ncfname)
 
-#2  Read the variables from a file
+#2  Read the variables from a file\n
 vars = nc_utils.ncread_vars(ncfname)
 
-#3  Write netCDF (note header-setting must be done via a function)
+#3  Write netCDF (note header-setting must be done via a function)\n
 def def_vars():
     stdin = {'dims':['npts', 'npts'], 'type': 'float'} 
     return {

@@ -1,8 +1,8 @@
 """
 nc_utils.py
-Some basic netCDF manipulation routines used by icon conversion code
+Some basic netCDF and other file manipulation routines 
 
-Author: Alex T. Chartier, 20 December 2017
+Author: Alex T. Chartier, 2023
 """
 import os
 import datetime as dt
@@ -10,6 +10,9 @@ import numpy as np
 import pdb 
 import errno
 import netCDF4
+import pickle as pkl
+import pandas as pd
+import xarray
 
 def load_nc(fname):
     fn = os.path.expanduser(fname)
@@ -125,6 +128,84 @@ def example_write_nc():
     dim_defs = {'npts': len(out_vars['testarr'])}
     var_defs = def_vars()
     write_nc(out_fn, var_defs, out_vars, set_header, dim_defs, overwrite=True)
+
+
+def pickle(struct, pkl_fn):
+    """ Pickle write wrapper including filename and directory handling """
+    pkl_fn = os.path.abspath(os.path.expanduser(pkl_fn))
+    os.makedirs(os.path.dirname(pkl_fn), exist_ok='True')
+    with open(pkl_fn, 'wb') as f:
+        pkl.dump(struct, f)
+    print('Wrote to %s' % pkl_fn)
+
+
+def unpickle(pkl_fn):
+    """ Pickle read wrapper including filename and directory handling """
+    print('trying to unpickle %s' % pkl_fn)
+    assert os.path.isfile(pkl_fn), 'no such file'
+    pkl_fn = os.path.abspath(os.path.expanduser(pkl_fn))
+    with open(pkl_fn, 'rb') as f:
+        struct = pkl.load(f)
+    print('Loaded %s' % pkl_fn)
+
+    return struct
+
+
+def write_netcdf_from_df(df, metadata, global_atts, nc_fname):
+    """ write dataframe to netCDF """
+    #TODO Make this all generic
+    # Add POSIX time
+    df['POSIXtime'] = (df.index - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
+    
+    # create xarray Dataset from Pandas DataFrame 
+    xr = xarray.Dataset.from_dataframe(df)
+
+    # add variable attribute metadata  
+    for k, v in metadata.items():
+        xr[k].attrs = v
+
+    # add global attribute metadata
+    xr.attrs = global_atts
+
+    # save to netCDF
+    xr.to_netcdf(nc_fname)
+
+
+def example_df_metadata_define():
+    return {
+        'POSIXtime': {'units':'Seconds', 'long_name':'POSIX time (seconds since 1/1/1970)'},
+        'Latitude': {'units':'degrees', 'long_name':'Latitude'},
+        'Longitude'].attrs = {'units':'degrees', 'long_name':'Longitude'},
+        'Radius': {'units':'Metres', 'long_name':'Radius'},
+        'Vn': {'units':'m/s', 'long_name':'North component of vi'},
+        'Ve': {'units':'m/s', 'long_name':'East component of vi'},
+        'Vc': {'units':'m/s', 'long_name':'Down component of vi'},
+        'Viy': {'units':'m/s', 'long_name':'S/C right component of vi'},
+        'Viy_error': {'units':'m/s', 'long_name':'error in S/C right component of vi'},
+    }
+
+
+def example_df_global_atts_define():
+    return {
+        'Conventions':'CF-1.6', 
+        'title':'Swarm cross-track drift data', 
+        'summary':'Data generated',
+    }
+
+
+def load_cdf(cdf_fn):
+    """ loads generic CDF into a dict """
+    cdf_fn = os.path.abspath(os.path.expanduser(cdf_fn))
+
+    cdf = pycdf.CDF(cdf_fn)
+    data = {}
+    for k, v in cdf.items():
+        data[k] = v[...]
+
+
+    return data
+
+
 
 
 if __name__ == '__main__':
