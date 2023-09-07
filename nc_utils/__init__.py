@@ -175,7 +175,7 @@ def example_df_metadata_define():
     return {
         'POSIXtime': {'units':'Seconds', 'long_name':'POSIX time (seconds since 1/1/1970)'},
         'Latitude': {'units':'degrees', 'long_name':'Latitude'},
-        'Longitude'].attrs = {'units':'degrees', 'long_name':'Longitude'},
+        'Longitude': {'units':'degrees', 'long_name':'Longitude'},
         'Radius': {'units':'Metres', 'long_name':'Radius'},
         'Vn': {'units':'m/s', 'long_name':'North component of vi'},
         'Ve': {'units':'m/s', 'long_name':'East component of vi'},
