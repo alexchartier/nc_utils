@@ -139,14 +139,17 @@ def pickle(struct, pkl_fn):
     print('Wrote to %s' % pkl_fn)
 
 
-def unpickle(pkl_fn):
+def unpickle(pkl_fn, verbose=True):
     """ Pickle read wrapper including filename and directory handling """
-    print('trying to unpickle %s' % pkl_fn)
-    assert os.path.isfile(pkl_fn), 'no such file'
+    pkl_fn = os.path.abspath(os.path.expanduser(pkl_fn))
+    if verbose:
+        print('trying to unpickle %s' % pkl_fn)
+    assert os.path.isfile(pkl_fn), 'no such file: %s' % pkl_fn
     pkl_fn = os.path.abspath(os.path.expanduser(pkl_fn))
     with open(pkl_fn, 'rb') as f:
         struct = pkl.load(f)
-    print('Loaded %s' % pkl_fn)
+    if verbose:
+        print('Loaded %s' % pkl_fn)
 
     return struct
 
