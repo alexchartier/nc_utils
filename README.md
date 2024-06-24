@@ -9,6 +9,8 @@ $ python3 -m pip install -e .
 
 Usage (assumes valid netCDF file 'ncfname' exists)
 
+#0 From nc_utils import nc_utils
+
 #1  Read the whole file, including the attributes  
 
 ```
