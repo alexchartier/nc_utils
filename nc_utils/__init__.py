@@ -18,12 +18,8 @@ def load_nc(fname):
     fn = os.path.expanduser(fname)
     if not os.path.isfile(fn):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), fn)
-    #try:
-    #    from netCDF4 import Dataset
+
     return netCDF4.Dataset(fn, 'r', format='NETCDF4')
-    #except:
-    #    import scipy.io.netcdf as nc
-    #    return nc.netcdf_file(fn, 'r', version=2)
 
 
 def ncread_vars(fname):
@@ -64,14 +60,8 @@ def write_nc(
     os.makedirs(os.path.dirname(fn), exist_ok=True)
 
     # Create netCDF file
-    try:
-        from netCDF4 import Dataset
-        print('writing with netCDF4')
-        rootgrp = Dataset(fn, 'w', format='NETCDF4')
-    except:
-        import scipy.io.netcdf as nc
-        print('writing with scipy')
-        rootgrp = nc.netcdf_file(fn, mode="w")
+    print('writing with netCDF4')
+    rootgrp = netCDF4.Dataset(fn, 'w', format='NETCDF4')
 
     if atts:
         rootgrp.setncatts(atts)
@@ -79,6 +69,16 @@ def write_nc(
     write_grp(rootgrp, dim_defs, set_header, var_defs, out_vars)
     rootgrp.close()
     print('File written to %s' % fn)
+
+
+def append_nc(fn, out_vars, var_defs):
+    rootgrp = netCDF4.Dataset(os.path.expanduser(fn), 'r+', format='NETCDF4')
+    for k, v in var_defs.items():
+        nc_var = rootgrp.createVariable(k, v['type'], v['dims'])
+        nc_var[:] = out_vars[k]
+
+    rootgrp.close()
+    print('File appended: %s' % fn)
 
 
 def write_grp(grp, dim_defs, set_header, var_defs, out_vars):
@@ -117,7 +117,7 @@ def example_write_nc():
         stdin = {'dims':['npts', 'npts'], 'type': 'float'} 
         return {
             'testarr': dict({'units': 'none', 'long_name': 'test array to demonstrate code'}, **stdin),
-        }   
+        }  
 
     def set_header(rootgrp, out_vars):
         rootgrp.description = 'test nc for numpy array writing'
