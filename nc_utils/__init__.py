@@ -57,10 +57,11 @@ def write_nc(
     else:
         assert not os.path.isfile(fn), \
         '%s already exists and overwrite set to False. Stopping...' % fn
-    os.makedirs(os.path.dirname(fn), exist_ok=True)
+
+    if os.path.dirname(fn):
+        os.makedirs(os.path.dirname(fn), exist_ok=True)
 
     # Create netCDF file
-    print('writing with netCDF4')
     rootgrp = netCDF4.Dataset(fn, 'w', format='NETCDF4')
 
     if atts:
